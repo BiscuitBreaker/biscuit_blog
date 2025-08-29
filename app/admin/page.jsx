@@ -1,6 +1,7 @@
 "use client";
 import { useState } from 'react';
 import BackButton from '../../components/BackButton';
+import Link from 'next/link';
 
 const PASSPHRASE = 'bikki';
 
@@ -32,13 +33,17 @@ export default function AdminPage() {
     <main className="max-w-3xl mx-auto px-6 py-8">
       <BackButton />
       <h1 className="font-[family-name:var(--font-sora)] text-2xl mb-6">Admin</h1>
-      {!ok ? (
+  {!ok ? (
         <form onSubmit={onGate} className="space-y-3 max-w-sm">
           <label className="block text-sm text-white/70">Passphrase</label>
           <input name="pass" type="password" className="w-full rounded px-3 py-2 glass-input" />
           <button className="rounded px-3 py-2 glass">Enter</button>
         </form>
       ) : (
+        <>
+        <div className="mb-6">
+          <Link href="/admin/memories" className="px-3 py-2 rounded glass inline-block">Go to Memories Admin →</Link>
+        </div>
         <form onSubmit={onGen} className="space-y-4">
           <div>
             <label className="block text-sm text-white/70">Title</label>
@@ -68,6 +73,7 @@ export default function AdminPage() {
           </div>
           <button className="rounded px-4 py-2 glass">Download MDX</button>
         </form>
+        </>
       )}
     </main>
   );

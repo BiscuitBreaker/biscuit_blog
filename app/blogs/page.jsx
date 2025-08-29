@@ -22,6 +22,13 @@ export default async function BlogsPage({ searchParams }) {
                 <div className="text-white/60 text-sm">{new Date(p.date).toDateString()} • {p.readingTime?.text}</div>
                 <p className="text-white/70 mt-1">{p.excerpt}</p>
               </Link>
+              {p.tags?.length ? (
+                <div className="mt-2 flex flex-wrap gap-2 text-xs">
+                  {p.tags.map(t => (
+                    <Link key={t} href={`/tags/${encodeURIComponent(t)}`} className="px-2 py-0.5 rounded border border-white/10 hover:bg-white/5">#{t}</Link>
+                  ))}
+                </div>
+              ) : null}
             </div>
           </li>
         ))}
