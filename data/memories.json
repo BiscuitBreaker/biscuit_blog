@@ -1,0 +1,12 @@
+{
+  "items": [
+    {
+      "id": "welcome",
+      "date": "2025-08-29",
+      "type": "text",
+      "title": "BiscuitBreaker starts baking",
+      "description": "First crumb dropped. More memories soon.",
+      "tags": ["intro"]
+    }
+  ]
+}
