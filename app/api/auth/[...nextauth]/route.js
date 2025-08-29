@@ -1,52 +1,34 @@
 import NextAuth from 'next-auth';
-import EmailProvider from 'next-auth/providers/email';
+import Credentials from 'next-auth/providers/credentials';
 
 const allowlist = (process.env.ALLOWLIST || '').split(',').map(s=>s.trim().toLowerCase()).filter(Boolean);
+const PASSCODE = (process.env.LOGIN_PASSCODE || '');
+const SECRET = process.env.NEXTAUTH_SECRET || (process.env.AUTH_DISABLED === 'true' ? 'dev-secret' : undefined);
 
 const handler = NextAuth({
+  secret: SECRET,
   session: { strategy: 'jwt' },
   providers: [
-    EmailProvider({
-      server: {
-        host: process.env.EMAIL_SERVER_HOST,
-        port: Number(process.env.EMAIL_SERVER_PORT || 587),
-        auth: {
-          user: process.env.EMAIL_SERVER_USER,
-          pass: process.env.EMAIL_SERVER_PASSWORD,
-        },
+    Credentials({
+      name: 'Email Passcode',
+      credentials: {
+        email: { label: 'Email', type: 'email' },
+        passcode: { label: 'Passcode', type: 'password' },
       },
-      from: process.env.EMAIL_FROM,
-      async generateVerificationToken() {
-        // default is fine; keep for compatibility
-        return undefined;
+      async authorize(creds) {
+        const email = (creds?.email || '').toLowerCase().trim();
+        const code = (creds?.passcode || '').trim();
+        if (!allowlist.length) return null;
+        if (!email || !allowlist.includes(email)) return null;
+        if (!PASSCODE || code !== PASSCODE) return null;
+        return { id: email, email };
       },
-      async sendVerificationRequest({ identifier, url, provider }) {
-        // Use provider's built-in if configured; otherwise console log
-        const { server, from } = provider;
-        if (!server || !from) {
-          console.log('Login link for', identifier, url);
-          return;
-        }
-        const nodemailer = (await import('nodemailer')).default;
-        const transport = nodemailer.createTransport(server);
-        await transport.sendMail({
-          to: identifier,
-          from,
-          subject: 'Your BiscuitBlog sign-in link',
-          text: `Sign in to BiscuitBlog\n${url}`,
-          html: `<p>Sign in to <b>BiscuitBlog</b></p><p><a href="${url}">Click here to sign in</a></p>`
-        });
-      },
-      normalizeIdentifier(identifier) {
-        return identifier.toLowerCase();
-      }
     })
   ],
   callbacks: {
     async signIn({ user }) {
-      if (!allowlist.length) return false; // deny all if not configured
-      const email = user?.email?.toLowerCase();
-      return !!email && allowlist.includes(email);
+      // authorize already enforced in credentials authorize
+      return !!user?.email;
     },
     async jwt({ token, user }) {
       if (user?.email) token.email = user.email.toLowerCase();
@@ -58,9 +40,8 @@ const handler = NextAuth({
     },
   },
   pages: {
-    signIn: '/login',
-    verifyRequest: '/login/verify',
-    error: '/login/error',
+  signIn: '/login',
+  error: '/login/error',
   },
 });
 
