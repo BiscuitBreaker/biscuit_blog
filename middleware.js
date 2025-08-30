@@ -10,9 +10,8 @@ export default withAuth(
         if (AUTH_DISABLED) return true; // bypass auth when explicitly disabled (e.g., local dev)
         const { pathname } = req.nextUrl;
         // Public routes
-        const publicPaths = [
+  const publicPaths = [
           '/login',
-          '/login/verify',
           '/login/error',
           '/robots.txt',
           '/sitemap.xml',
@@ -38,6 +37,6 @@ export default withAuth(
 export const config = {
   // Exclude auth, login, and static/public endpoints from middleware to avoid loops
   matcher: [
-    '/((?!api/auth|api/preview|login|feed|feed.json|sitemap.xml|robots.txt|og|_next/static|_next/image|favicon.ico|patterns|memories).*)',
+  '/((?!api/auth|api/preview|login|feed|feed.json|sitemap.xml|robots.txt|og|_next/static|_next/image|favicon.ico|patterns|memories).*)',
   ],
 };
